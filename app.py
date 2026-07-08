@@ -18,6 +18,7 @@ st.write("Ask me anything about current events. I will browse the web to find th
 with st.sidebar:
     st.header('⚙️ System Config')
     user_api_key = st.text_input('Groq API Key:', type='password')
+    user_api_key='3FwzijMKi0H4nJC8bmHq8qvid54_7aC4TJDwJzohNij73b5iV'
     st.info('Equipped with: DuckDuckGo Web Search Tool')
 
 if 'messages' not in st.session_state:
