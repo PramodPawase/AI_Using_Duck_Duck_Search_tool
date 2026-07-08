@@ -5,7 +5,7 @@ from langchain_groq import ChatGroq
 from langchain_community.tools import DuckDuckGoSearchRun
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-#from pyngrok import ngrok
+from pyngrok import ngrok
 import subprocess
 import time
 
@@ -84,3 +84,16 @@ if user_query := st.chat_input("Ask about today's news..."):
 
         # Save answer back to memory
         st.session_state.messages.append({"role": "assistant", "content": bot_answer})
+
+# Ngrok setup
+ngrok.set_auth_token("3FwzijMKi0H4nJC8bmHq8qvid54_7aC4TJDwJzohNij73b5iV")
+
+# Start Streamlit as background process
+subprocess.Popen(["streamlit", "run", "app.py"])
+
+# Wait for Streamlit to start
+time.sleep(5)
+
+# Connect ngrok
+public_url = ngrok.connect(8501)
+print("✅ Your app is live at:", public_url)
