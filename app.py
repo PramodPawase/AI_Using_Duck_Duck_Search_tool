@@ -88,12 +88,4 @@ if user_query := st.chat_input("Ask about today's news..."):
 # Ngrok setup
 ngrok.set_auth_token("3FwzijMKi0H4nJC8bmHq8qvid54_7aC4TJDwJzohNij73b5iV")
 
-# Start Streamlit as background process
-subprocess.Popen(["streamlit", "run", "app.py"])
 
-# Wait for Streamlit to start
-time.sleep(5)
-
-# Connect ngrok
-public_url = ngrok.connect(8501)
-print("✅ Your app is live at:", public_url)
