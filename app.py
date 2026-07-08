@@ -27,6 +27,7 @@ st.write("Ask me anything about current events. I will browse the web to find th
 with st.sidebar:
     st.header('⚙️ System Config')
     user_api_key = st.text_input('Groq API Key:', type='password')
+    user_api_key='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'
     st.info('Equipped with: DuckDuckGo Web Search Tool')
 
 # Memory
