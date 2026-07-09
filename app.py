@@ -27,7 +27,7 @@ st.write("Ask me anything about current events. I will browse the web to find th
 with st.sidebar:
     st.header('⚙️ System Config')
     user_api_key = st.text_input('Groq API Key:', type='password')
-    user_api_key='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'
+    user_api_key = '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'
     st.info('Equipped with: DuckDuckGo Web Search Tool')
 
 # Memory
@@ -74,11 +74,22 @@ if user_query := st.chat_input("Ask about today's news..."):
             else:
                 langgraph_history.append(AIMessage(content=msg['content']))
 
-        # Execute agent
+        # Execute agent with error handling
         with st.chat_message('assistant'):
             with st.spinner("🤖 Browsing the web and analyzing results..."):
-                result_state = agent.invoke({'messages': langgraph_history})
-                bot_answer = result_state['messages'][-1].content
+                try:
+                    result_state = agent.invoke({'messages': langgraph_history})
+                    bot_answer = result_state['messages'][-1].content.strip()
+
+                    if not bot_answer:
+                        bot_answer = "⚠️ Sorry, I couldn’t find reliable information right now."
+
+                except Exception as e:
+                    # Show user-friendly error message
+                    st.error("⚠️ Oops! Something went wrong while fetching the answer. Please try again.")
+                    # Optional: log the actual error for debugging
+                    print(f"Error details: {e}")
+                    bot_answer = "⚠️ Unable to process your request at the moment."
 
             st.markdown(bot_answer)
 
@@ -87,5 +98,3 @@ if user_query := st.chat_input("Ask about today's news..."):
 
 # Ngrok setup
 ngrok.set_auth_token("3FwzijMKi0H4nJC8bmHq8qvid54_7aC4TJDwJzohNij73b5iV")
-
-
