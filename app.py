@@ -20,25 +20,27 @@ def web_search(query: str) -> str:
 tools = [web_search]
 
 # Streamlit UI
-st.title('🌍 The Live Text Base Agent')
+st.title('🌍 The Live Internet Agent')
 st.write("Ask me anything about current events. I will browse the web to find the answer.")
 
 # Sidebar configuration
 with st.sidebar:
     st.header('⚙️ System Config')
-    user_api_key = st.text_input(' API Key:', type='password')
+    user_api_key = st.text_input('Groq API Key:', type='password')
     # For testing, you hardcoded the key here
     user_api_key = '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'
-    st.info('Equipped with: Duck Duck Search Tool')
+    st.info('Equipped with: DuckDuckGo Web Search Tool')
+
+    # Show chat history in sidebar
+    st.header("💬 Chat History")
+    if 'messages' in st.session_state and st.session_state.messages:
+        for msg in st.session_state.messages:
+            role = "🧑 User" if msg['role'] == 'user' else "🤖 Assistant"
+            st.markdown(f"**{role}:** {msg['content']}")
 
 # Memory
 if 'messages' not in st.session_state:
     st.session_state.messages = []
-
-# Chat history
-for msg in st.session_state.messages:
-    with st.chat_message(msg['role']):
-        st.markdown(msg['content'])
 
 # Core Agentic AI Loop
 if user_query := st.chat_input("Ask about today's news..."):
