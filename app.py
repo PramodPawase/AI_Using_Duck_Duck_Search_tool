@@ -181,7 +181,7 @@ if user_query := st.chat_input("Ask about today's news..."):
         st.session_state.messages.append({"role": "assistant", "content": bot_answer})
 
 # Footer fixed
-st.markdown('<div class="main-footer">© 2026 The Live Internet Agent | Powered by Groq + DuckDuckGo</div>', unsafe_allow_html=True)
+st.markdown('<div class="main-footer">The Live Internet Agent </div>', unsafe_allow_html=True)
 
 # Ngrok setup
 ngrok.set_auth_token("3FwzijMKi0H4nJC8bmHq8qvid54_7aC4TJDwJzohNij73b5iV")
