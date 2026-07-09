@@ -20,16 +20,16 @@ def web_search(query: str) -> str:
 tools = [web_search]
 
 # Streamlit UI
-st.title('🌍 The Live Internet Agent')
+st.title('🌍 The Live Text Base Agent')
 st.write("Ask me anything about current events. I will browse the web to find the answer.")
 
 # Sidebar configuration
 with st.sidebar:
     st.header('⚙️ System Config')
-    user_api_key = st.text_input('Groq API Key:', type='password')
+    user_api_key = st.text_input(' API Key:', type='password')
     # For testing, you hardcoded the key here
     user_api_key = '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'
-    st.info('Equipped with: DuckDuckGo Web Search Tool')
+    st.info('Equipped with: Duck Duck Search Tool')
 
 # Memory
 if 'messages' not in st.session_state:
