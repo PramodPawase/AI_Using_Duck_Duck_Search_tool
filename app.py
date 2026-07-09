@@ -6,8 +6,6 @@ from langchain_community.tools import DuckDuckGoSearchRun
 from langgraph.prebuilt import create_react_agent
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from pyngrok import ngrok
-import subprocess
-import time
 
 # Initialize DuckDuckGo tool
 web_tool = DuckDuckGoSearchRun()
@@ -32,25 +30,28 @@ st.markdown("""
             font-weight: bold;
             border-radius: 8px;
         }
-        /* Footer */
+        /* Footer fixed at bottom */
         .main-footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
             background-color: #2E86C1;
             color: white;
             padding: 8px;
             text-align: center;
             font-size: 14px;
-            border-radius: 8px;
-            margin-top: 20px;
+            border-top: 2px solid #1B4F72;
         }
-        /* Sidebar history items */
-        .history-item {
+        /* Sidebar history list */
+        .history-thread {
             font-style: italic;
             color: #34495E;
-            cursor: pointer;
             padding: 6px;
             border-bottom: 1px solid #ddd;
+            cursor: pointer;
         }
-        .history-item:hover {
+        .history-thread:hover {
             background-color: #f0f0f0;
         }
         /* Chat styling */
@@ -58,11 +59,13 @@ st.markdown("""
             font-weight: bold;
             color: #1A5276;
             font-family: "Trebuchet MS", sans-serif;
+            margin: 8px 0;
         }
         .assistant-msg {
             font-weight: bold;
             color: #117A65;
             font-family: "Georgia", serif;
+            margin: 8px 0;
         }
     </style>
 """, unsafe_allow_html=True)
@@ -79,26 +82,46 @@ with st.sidebar:
     user_api_key = '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'
     st.info('Equipped with: DuckDuckGo Web Search Tool')
 
-    # Show summarized chat history
-    st.header("💬 Chat History")
+    # Show threaded history (user+assistant pairs)
+    st.header("💬 Conversation History")
     if 'messages' in st.session_state and st.session_state.messages:
-        for i, msg in enumerate(st.session_state.messages):
-            summary = msg['content'][:40] + ("..." if len(msg['content']) > 40 else "")
-            if st.button(summary, key=f"history_{i}"):
-                st.session_state.selected_history = i
+        # Group messages into pairs
+        pairs = []
+        temp_pair = {}
+        for msg in st.session_state.messages:
+            if msg['role'] == 'user':
+                temp_pair['user'] = msg['content']
+            elif msg['role'] == 'assistant':
+                temp_pair['assistant'] = msg['content']
+                pairs.append(temp_pair)
+                temp_pair = {}
+
+        for i, pair in enumerate(pairs):
+            summary = pair['user'][:30] + ("..." if len(pair['user']) > 30 else "")
+            if st.button(summary, key=f"thread_{i}"):
+                st.session_state.selected_thread = i
 
 # Memory
 if 'messages' not in st.session_state:
     st.session_state.messages = []
-if 'selected_history' not in st.session_state:
-    st.session_state.selected_history = None
+if 'selected_thread' not in st.session_state:
+    st.session_state.selected_thread = None
 
-# Show selected history on left side
-if st.session_state.selected_history is not None:
-    selected_msg = st.session_state.messages[st.session_state.selected_history]
-    role = "🧑 User" if selected_msg['role'] == 'user' else "🤖 Assistant"
-    css_class = "user-msg" if selected_msg['role'] == 'user' else "assistant-msg"
-    st.markdown(f'<div class="{css_class}">{role}: {selected_msg["content"]}</div>', unsafe_allow_html=True)
+# Show selected thread on left side
+if st.session_state.selected_thread is not None:
+    pair = []
+    # rebuild pairs
+    temp_pair = {}
+    for msg in st.session_state.messages:
+        if msg['role'] == 'user':
+            temp_pair['user'] = msg['content']
+        elif msg['role'] == 'assistant':
+            temp_pair['assistant'] = msg['content']
+            pair.append(temp_pair)
+            temp_pair = {}
+    selected_pair = pair[st.session_state.selected_thread]
+    st.markdown(f'<div class="user-msg">🧑 User: {selected_pair["user"]}</div>', unsafe_allow_html=True)
+    st.markdown(f'<div class="assistant-msg">🤖 Assistant: {selected_pair["assistant"]}</div>', unsafe_allow_html=True)
 
 # Core Agentic AI Loop
 if user_query := st.chat_input("Ask about today's news..."):
@@ -157,7 +180,7 @@ if user_query := st.chat_input("Ask about today's news..."):
         # Save answer back to memory
         st.session_state.messages.append({"role": "assistant", "content": bot_answer})
 
-# Footer
+# Footer fixed
 st.markdown('<div class="main-footer">© 2026 The Live Internet Agent | Powered by Groq + DuckDuckGo</div>', unsafe_allow_html=True)
 
 # Ngrok setup
