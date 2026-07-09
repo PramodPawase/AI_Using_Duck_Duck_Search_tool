@@ -27,6 +27,7 @@ st.write("Ask me anything about current events. I will browse the web to find th
 with st.sidebar:
     st.header('⚙️ System Config')
     user_api_key = st.text_input('Groq API Key:', type='password')
+    # For testing, you hardcoded the key here
     user_api_key = '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'
     st.info('Equipped with: DuckDuckGo Web Search Tool')
 
@@ -74,10 +75,11 @@ if user_query := st.chat_input("Ask about today's news..."):
             else:
                 langgraph_history.append(AIMessage(content=msg['content']))
 
-        # Execute agent with error handling
+        # Execute agent with error handling and fallback
         with st.chat_message('assistant'):
             with st.spinner("🤖 Browsing the web and analyzing results..."):
                 try:
+                    # Try running the agent normally
                     result_state = agent.invoke({'messages': langgraph_history})
                     bot_answer = result_state['messages'][-1].content.strip()
 
@@ -85,11 +87,16 @@ if user_query := st.chat_input("Ask about today's news..."):
                         bot_answer = "⚠️ Sorry, I couldn’t find reliable information right now."
 
                 except Exception as e:
-                    # Show user-friendly error message
-                    st.error("⚠️ Oops! Something went wrong while fetching the answer. Please try again.")
-                    # Optional: log the actual error for debugging
+                    # Log error for debugging
                     print(f"Error details: {e}")
-                    bot_answer = "⚠️ Unable to process your request at the moment."
+
+                    # Fallback: use LLM directly without agent
+                    try:
+                        fallback_prompt = f"User asked: {user_query}\nProvide a helpful answer even without web search."
+                        bot_answer = llm.invoke([HumanMessage(content=fallback_prompt)]).content.strip()
+                    except Exception as inner_e:
+                        print(f"Fallback error: {inner_e}")
+                        bot_answer = "⚠️ Unable to process your request at the moment, but I’m here to help."
 
             st.markdown(bot_answer)
 
